@@ -1,4 +1,4 @@
-CREATE TABLE user_types (
+CREATE TABLE categories (
     id SERIAL PRIMARY KEY,
     name VARCHAR,
     hash VARCHAR

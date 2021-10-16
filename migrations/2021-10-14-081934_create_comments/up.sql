@@ -1,11 +1,10 @@
 CREATE OR REPLACE FUNCTION trigger_set_timestamp()
 RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW(); RETURN NEW; END; $$ LANGUAGE plpgsql;
-CREATE TABLE users (
+CREATE TABLE comments (
     id SERIAL PRIMARY KEY,
-    name VARCHAR NOT NULL,
-    user_type INTEGER,
-    email VARCHAR NOT NULL,
-    icon_path VARCHAR,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id INTEGER NOT NULL,
+    recipe_id INTEGER NOT NULL,
+    content VARCHAR NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 
 );
