@@ -3,7 +3,7 @@ RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW(); RETURN NEW; END; $$ LANGUAGE
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name VARCHAR NOT NULL,
-    user_type INTEGER,
+    user_type INTEGER NOT NULL,
     email VARCHAR NOT NULL,
     icon_path VARCHAR,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

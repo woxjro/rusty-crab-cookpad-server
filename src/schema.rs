@@ -1,16 +1,16 @@
 table! {
     authorities (id) {
         id -> Int4,
-        name -> Nullable<Varchar>,
-        hash -> Nullable<Varchar>,
+        name -> Varchar,
+        hash -> Varchar,
     }
 }
 
 table! {
     categories (id) {
         id -> Int4,
-        name -> Nullable<Varchar>,
-        hash -> Nullable<Varchar>,
+        name -> Varchar,
+        hash -> Varchar,
     }
 }
 
@@ -28,18 +28,18 @@ table! {
 table! {
     ingredients (id) {
         id -> Int4,
-        recipe_id -> Nullable<Int4>,
-        name -> Nullable<Varchar>,
-        amount -> Nullable<Varchar>,
+        recipe_id -> Int4,
+        name -> Varchar,
+        amount -> Varchar,
     }
 }
 
 table! {
     procedures (id) {
         id -> Int4,
-        recipe_id -> Nullable<Int4>,
-        number -> Nullable<Int4>,
-        discription -> Nullable<Varchar>,
+        recipe_id -> Int4,
+        number -> Int4,
+        discription -> Varchar,
         image_path -> Nullable<Varchar>,
     }
 }
@@ -47,7 +47,7 @@ table! {
 table! {
     recipes (id) {
         id -> Int4,
-        user_id -> Nullable<Int4>,
+        user_id -> Int4,
         title -> Varchar,
         thumbnail_path -> Nullable<Varchar>,
         created_at -> Nullable<Timestamp>,
@@ -58,16 +58,16 @@ table! {
 table! {
     tags (id) {
         id -> Int4,
-        name -> Nullable<Varchar>,
-        hash -> Nullable<Varchar>,
+        name -> Varchar,
+        hash -> Varchar,
     }
 }
 
 table! {
     user_types (id) {
         id -> Int4,
-        name -> Nullable<Varchar>,
-        hash -> Nullable<Varchar>,
+        name -> Varchar,
+        hash -> Varchar,
     }
 }
 
@@ -75,7 +75,7 @@ table! {
     users (id) {
         id -> Int4,
         name -> Varchar,
-        user_type -> Nullable<Int4>,
+        user_type -> Int4,
         email -> Varchar,
         icon_path -> Nullable<Varchar>,
         created_at -> Nullable<Timestamp>,
