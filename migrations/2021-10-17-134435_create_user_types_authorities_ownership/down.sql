@@ -1,0 +1,1 @@
+DROP TABLE user_types_authorities_ownership

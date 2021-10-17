@@ -56,6 +56,22 @@ table! {
 }
 
 table! {
+    recipes_categories_categorization (id) {
+        id -> Int4,
+        recipe_id -> Int4,
+        category_id -> Int4,
+    }
+}
+
+table! {
+    recipes_tags_tagging (id) {
+        id -> Int4,
+        recipe_id -> Int4,
+        tag_id -> Int4,
+    }
+}
+
+table! {
     tags (id) {
         id -> Int4,
         name -> Varchar,
@@ -68,6 +84,14 @@ table! {
         id -> Int4,
         name -> Varchar,
         hash -> Varchar,
+    }
+}
+
+table! {
+    user_types_authorities_ownership (id) {
+        id -> Int4,
+        user_type_id -> Int4,
+        authority_id -> Int4,
     }
 }
 
@@ -90,7 +114,10 @@ allow_tables_to_appear_in_same_query!(
     ingredients,
     procedures,
     recipes,
+    recipes_categories_categorization,
+    recipes_tags_tagging,
     tags,
     user_types,
+    user_types_authorities_ownership,
     users,
 );
