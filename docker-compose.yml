@@ -1,0 +1,20 @@
+version: "3.2"
+services:
+  minio:
+    image: minio/minio
+    volumes:
+      - ./data/minio:/export
+      - ./Dockerfiles/minio:/policy
+    environment:
+      - MINIO_ROOT_USER=minio
+      - MINIO_ROOT_PASSWORD=minio/0l9D2AmG
+    container_name: "rusty-crab-cookpad-minio"
+    ports:
+      - "9002:9002"
+    entrypoint: sh
+    command: -c "
+      mkdir -p /export/.minio.sys/buckets;
+      cp -r /policy/* /export/.minio.sys/;
+      mkdir -p /export/rusty-crab-cookpad-dev;
+      minio server /export --console-address ":9002";
+      "
