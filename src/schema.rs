@@ -52,6 +52,7 @@ table! {
         thumbnail_path -> Nullable<Varchar>,
         created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
+        discription -> Nullable<Varchar>,
     }
 }
 
@@ -104,6 +105,8 @@ table! {
         icon_path -> Nullable<Varchar>,
         created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
+        password -> Varchar,
+        api_key -> Nullable<Varchar>,
     }
 }
 
