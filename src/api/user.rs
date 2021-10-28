@@ -1,9 +1,7 @@
 use crate::api::MyDatabase;
 use crate::models;
 use models::user::{NewUser, User};
-use rocket::http::ContentType;
 use rocket::serde::json::{json, Json, Value};
-use rocket::Response;
 
 #[get("/<id>")]
 pub async fn read_user(conn: MyDatabase, id: usize) -> Json<User> {
