@@ -22,4 +22,8 @@ fn rocket() -> _ {
                 api::user::delete_user,
             ],
         )
+        .mount(
+            "/api/recipe",
+            routes![api::recipe::show_recipes, api::recipe::read_recipe,],
+        )
 }
