@@ -16,6 +16,8 @@ pub struct User {
     pub icon_path: Option<String>,
     pub created_at: Option<chrono::NaiveDateTime>,
     pub updated_at: chrono::NaiveDateTime,
+    pub password: String,
+    pub api_key: Option<String>,
 }
 
 #[serde(crate = "rocket::serde")]
@@ -25,6 +27,7 @@ pub struct NewUser {
     pub name: String,
     pub user_type: i32,
     pub email: String,
+    pub password: String,
 }
 
 impl User {
