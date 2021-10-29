@@ -1,17 +1,20 @@
 use crate::api::MyDatabase;
 use crate::models;
-use futures::future::join_all;
-use json_patch::merge;
+use models::category::Category;
 use models::ingredient::Ingredient;
 use models::procedure::Procedure;
 use models::recipe::{Recipe, RecipeWithItems};
-use rocket::serde::json::{json, Json, Value};
+use models::tag::Tag;
+use rocket::serde::json::Json;
 
 #[get("/<id>")]
 pub async fn read_recipe(conn: MyDatabase, id: usize) -> Json<RecipeWithItems> {
     let recipe = conn.run(move |c| Recipe::from(c, id as i32)).await;
     let ingredients = conn.run(move |c| Ingredient::from(c, id as i32)).await;
     let procedures = conn.run(move |c| Procedure::from(c, id as i32)).await;
+    let tags = conn.run(move |c| Tag::from(c, id as i32)).await;
+    let categories = conn.run(move |c| Category::from(c, id as i32)).await;
+
     Json(RecipeWithItems {
         id: recipe.id,
         user_id: recipe.user_id,
@@ -22,6 +25,8 @@ pub async fn read_recipe(conn: MyDatabase, id: usize) -> Json<RecipeWithItems> {
         discription: recipe.discription,
         ingredients: ingredients,
         procedures: procedures,
+        tags: tags,
+        categories: categories,
     })
 }
 
@@ -33,6 +38,9 @@ pub async fn show_recipes(conn: MyDatabase) -> Json<Vec<RecipeWithItems>> {
         let id = recipe.id;
         let ingredients = conn.run(move |c| Ingredient::from(c, id as i32)).await;
         let procedures = conn.run(move |c| Procedure::from(c, id as i32)).await;
+        let tags = conn.run(move |c| Tag::from(c, id as i32)).await;
+        let categories = conn.run(move |c| Category::from(c, id as i32)).await;
+
         let r = RecipeWithItems {
             id: recipe.id,
             user_id: recipe.user_id,
@@ -43,6 +51,8 @@ pub async fn show_recipes(conn: MyDatabase) -> Json<Vec<RecipeWithItems>> {
             discription: recipe.discription,
             ingredients: ingredients,
             procedures: procedures,
+            tags: tags,
+            categories: categories,
         };
         res.push(r);
     }

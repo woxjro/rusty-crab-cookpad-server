@@ -1,5 +1,7 @@
+use crate::models::category::Category;
 use crate::models::ingredient::Ingredient;
 use crate::models::procedure::Procedure;
+use crate::models::tag::Tag;
 use crate::schema::recipes;
 use chrono;
 use diesel;
@@ -8,7 +10,7 @@ use diesel::PgConnection;
 use rocket::serde::{Deserialize, Serialize};
 
 #[serde(crate = "rocket::serde")]
-#[derive(Serialize, Deserialize, Debug, Queryable)]
+#[derive(Identifiable, PartialEq, Serialize, Deserialize, Debug, Queryable)]
 pub struct Recipe {
     pub id: i32,
     pub user_id: i32,
@@ -30,6 +32,8 @@ pub struct RecipeWithItems {
     pub discription: Option<String>,
     pub ingredients: Vec<Ingredient>,
     pub procedures: Vec<Procedure>,
+    pub tags: Vec<Tag>,
+    pub categories: Vec<Category>,
 }
 
 #[serde(crate = "rocket::serde")]

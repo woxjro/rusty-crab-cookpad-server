@@ -23,17 +23,22 @@ pub struct NewCategory {
 }
 
 impl Category {
-    /*
     pub fn from(conn: &PgConnection, recipe_id: i32) -> Vec<Category> {
         let recipe = Recipe::from(conn, recipe_id);
-
-        RecipeCategoryCategorization::belonging_to(&recipe)
-            .inner_join(categories::table)
-            .select(categories::all_columns)
-            .load::<Category>(conn)
-            .unwrap()
+        let middle = RecipeCategoryCategorization::belonging_to(&recipe)
+            .load::<RecipeCategoryCategorization>(conn)
+            .unwrap();
+        let categories = middle
+            .iter()
+            .map(|e| {
+                categories::table
+                    .filter(categories::id.eq(e.category_id))
+                    .first::<Category>(conn)
+                    .unwrap()
+            })
+            .collect::<Vec<Category>>();
+        categories
     }
-     */
 }
 #[serde(crate = "rocket::serde")]
 #[derive(Associations, Identifiable, Queryable, Debug, Serialize, Deserialize)]
