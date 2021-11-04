@@ -2,7 +2,6 @@ use crate::schema::users;
 use chrono;
 use diesel;
 use diesel::prelude::*;
-use diesel::sql_types::Timestamp;
 use diesel::PgConnection;
 use rocket::serde::{Deserialize, Serialize};
 

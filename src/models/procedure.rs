@@ -1,5 +1,4 @@
 use crate::schema::procedures;
-use chrono;
 use diesel;
 use diesel::prelude::*;
 use diesel::PgConnection;
