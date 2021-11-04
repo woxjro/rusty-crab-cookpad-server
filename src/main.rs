@@ -24,6 +24,10 @@ fn rocket() -> _ {
         )
         .mount(
             "/api/recipe",
-            routes![api::recipe::show_recipes, api::recipe::read_recipe,],
+            routes![
+                api::recipe::show_recipes,
+                api::recipe::read_recipe,
+                api::recipe::show_recipes_with_query
+            ],
         )
 }

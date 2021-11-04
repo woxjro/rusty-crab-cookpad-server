@@ -8,7 +8,6 @@ use diesel;
 use diesel::prelude::*;
 use diesel::PgConnection;
 use rocket::serde::{Deserialize, Serialize};
-
 #[serde(crate = "rocket::serde")]
 #[derive(Identifiable, PartialEq, Serialize, Deserialize, Debug, Queryable)]
 pub struct Recipe {
@@ -48,17 +47,103 @@ pub struct NewRecipe {
 }
 
 impl Recipe {
-    pub fn read(conn: &PgConnection) -> Vec<Recipe> {
-        recipes::table
+    pub fn read(conn: &PgConnection) -> Vec<RecipeWithItems> {
+        let recipes = recipes::table
             .order(recipes::id)
             .load::<Recipe>(conn)
-            .unwrap()
+            .unwrap();
+
+        let mut res = vec![];
+        for recipe in recipes {
+            let id = recipe.id;
+            let ingredients = Ingredient::from(conn, id);
+            let procedures = Procedure::from(conn, id);
+            let tags = Tag::from(conn, id);
+            let categories = Category::from(conn, id);
+            let r = RecipeWithItems {
+                id: recipe.id,
+                user_id: recipe.user_id,
+                title: recipe.title,
+                thumbnail_path: recipe.thumbnail_path,
+                created_at: recipe.created_at,
+                updated_at: recipe.updated_at,
+                discription: recipe.discription,
+                ingredients: ingredients,
+                procedures: procedures,
+                tags: tags,
+                categories: categories,
+            };
+            res.push(r);
+        }
+        res
+    }
+
+    pub fn read_with_query(
+        conn: &PgConnection,
+        user_id: Option<i32>,
+        tag_id: Option<i32>,
+        category_id: Option<i32>,
+    ) -> Vec<RecipeWithItems> {
+        let recipes = match user_id {
+            Some(id) => {
+                (recipes::table
+                    .order(recipes::id)
+                    .filter(recipes::user_id.eq(id))
+                    .load::<Recipe>(conn)
+                    .unwrap())
+            }
+            _ => {
+                (recipes::table
+                    .order(recipes::id)
+                    .load::<Recipe>(conn)
+                    .unwrap())
+            }
+        };
+        let mut res = vec![];
+        for recipe in recipes {
+            let id = recipe.id;
+            let ingredients = Ingredient::from(conn, id);
+            let procedures = Procedure::from(conn, id);
+            let tags = Tag::from(conn, id);
+            let categories = Category::from(conn, id);
+
+            if let Some(id) = tag_id {
+                let have = tags.iter().any(|tag| tag.id == id);
+                if !have {
+                    continue;
+                }
+            }
+
+            if let Some(id) = category_id {
+                let have = categories.iter().any(|category| category.id == id);
+                if !have {
+                    continue;
+                }
+            }
+
+            let r = RecipeWithItems {
+                id: recipe.id,
+                user_id: recipe.user_id,
+                title: recipe.title,
+                thumbnail_path: recipe.thumbnail_path,
+                created_at: recipe.created_at,
+                updated_at: recipe.updated_at,
+                discription: recipe.discription,
+                ingredients: ingredients,
+                procedures: procedures,
+                tags: tags,
+                categories: categories,
+            };
+            res.push(r);
+        }
+        res
     }
 
     pub fn from(conn: &PgConnection, id: i32) -> Recipe {
-        recipes::table
+        let recipe = recipes::table
             .filter(recipes::id.eq(id))
             .first::<Recipe>(conn)
-            .unwrap()
+            .unwrap();
+        recipe
     }
 }
