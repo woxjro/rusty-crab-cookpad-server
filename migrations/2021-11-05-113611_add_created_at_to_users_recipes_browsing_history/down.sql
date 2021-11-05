@@ -1,0 +1,1 @@
+ALTER TABLE users_recipes_browsing_history DROP COLUMN created_at;
