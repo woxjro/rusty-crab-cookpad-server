@@ -1,5 +1,6 @@
 use crate::api::MyDatabase;
 use crate::models;
+use models::recipe::Recipe;
 use models::user::{NewUser, User, UserWithAuthorities};
 use rocket::serde::json::{json, Json, Value};
 
@@ -29,5 +30,19 @@ pub async fn create_user(conn: MyDatabase, user: Json<NewUser>) -> Json<User> {
 #[get("/")]
 pub async fn show_users(conn: MyDatabase) -> Json<Vec<UserWithAuthorities>> {
     let res = conn.run(|c| User::read(c)).await;
+    Json(res)
+}
+
+#[get("/<id>/liked_recipes")]
+pub async fn show_liked_recipes(conn: MyDatabase, id: usize) -> Json<Vec<Recipe>> {
+    let res = conn.run(move |c| User::liked_recipes(c, id as i32)).await;
+    Json(res)
+}
+
+#[get("/<id>/browsed_recipes")]
+pub async fn show_browsed_recipes(conn: MyDatabase, id: usize) -> Json<Vec<Recipe>> {
+    let res = conn
+        .run(move |c| User::recipes_browsing_history(c, id as i32))
+        .await;
     Json(res)
 }

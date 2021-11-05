@@ -1,13 +1,17 @@
+use crate::models::recipe::Recipe;
 use crate::models::user_type::{UserType, UserTypeWithAuthorities};
+use crate::schema::recipes;
 use crate::schema::users;
+use crate::schema::users_recipes_browsing_history;
+use crate::schema::users_recipes_like;
 use chrono;
 use diesel;
 use diesel::prelude::*;
 use diesel::PgConnection;
 use rocket::serde::{Deserialize, Serialize};
 
+#[derive(Identifiable, Serialize, Deserialize, Debug, Queryable)]
 #[serde(crate = "rocket::serde")]
-#[derive(Serialize, Deserialize, Debug, Queryable)]
 pub struct User {
     pub id: i32,
     pub name: String,
@@ -20,8 +24,8 @@ pub struct User {
     pub api_key: Option<String>,
 }
 
-#[serde(crate = "rocket::serde")]
 #[derive(Deserialize, Insertable, FromForm, Debug)]
+#[serde(crate = "rocket::serde")]
 #[table_name = "users"]
 pub struct NewUser {
     pub name: String,
@@ -30,8 +34,8 @@ pub struct NewUser {
     pub password: String,
 }
 
-#[serde(crate = "rocket::serde")]
 #[derive(Serialize, Deserialize, Debug, Queryable)]
+#[serde(crate = "rocket::serde")]
 pub struct UserWithAuthorities {
     pub id: i32,
     pub name: String,
@@ -102,5 +106,65 @@ impl User {
         }
     }
 
-    //    pub fn update()
+    pub fn liked_recipes(conn: &PgConnection, id: i32) -> Vec<Recipe> {
+        let user = users::table
+            .filter(users::id.eq(id))
+            .first::<User>(conn)
+            .unwrap();
+        let middle = UsersRecipesLike::belonging_to(&user)
+            .load::<UsersRecipesLike>(conn)
+            .unwrap();
+        let recipes = middle
+            .iter()
+            .map(|e| {
+                recipes::table
+                    .filter(recipes::id.eq(e.recipe_id))
+                    .first::<Recipe>(conn)
+                    .unwrap()
+            })
+            .collect::<Vec<Recipe>>();
+        recipes
+    }
+
+    pub fn recipes_browsing_history(conn: &PgConnection, id: i32) -> Vec<Recipe> {
+        let user = users::table
+            .filter(users::id.eq(id))
+            .first::<User>(conn)
+            .unwrap();
+        let middle = UsersRecipesBrowsingHistory::belonging_to(&user)
+            .load::<UsersRecipesBrowsingHistory>(conn)
+            .unwrap();
+        let recipes = middle
+            .iter()
+            .map(|e| {
+                recipes::table
+                    .filter(recipes::id.eq(e.recipe_id))
+                    .first::<Recipe>(conn)
+                    .unwrap()
+            })
+            .collect::<Vec<Recipe>>();
+        recipes
+    }
+}
+
+#[derive(Associations, Identifiable, Queryable, Debug, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+#[belongs_to(User, foreign_key = "user_id")]
+#[belongs_to(Recipe, foreign_key = "recipe_id")]
+#[table_name = "users_recipes_like"]
+pub struct UsersRecipesLike {
+    pub id: i32,
+    pub user_id: i32,
+    pub recipe_id: i32,
+}
+
+#[derive(Associations, Identifiable, Queryable, Debug, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+#[belongs_to(User, foreign_key = "user_id")]
+#[belongs_to(Recipe, foreign_key = "recipe_id")]
+#[table_name = "users_recipes_browsing_history"]
+pub struct UsersRecipesBrowsingHistory {
+    pub id: i32,
+    pub user_id: i32,
+    pub recipe_id: i32,
 }

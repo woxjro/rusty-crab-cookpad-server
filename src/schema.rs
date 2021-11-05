@@ -110,6 +110,22 @@ table! {
     }
 }
 
+table! {
+    users_recipes_browsing_history (id) {
+        id -> Int4,
+        user_id -> Int4,
+        recipe_id -> Int4,
+    }
+}
+
+table! {
+    users_recipes_like (id) {
+        id -> Int4,
+        user_id -> Int4,
+        recipe_id -> Int4,
+    }
+}
+
 allow_tables_to_appear_in_same_query!(
     authorities,
     categories,
@@ -123,4 +139,6 @@ allow_tables_to_appear_in_same_query!(
     user_types,
     user_types_authorities_ownership,
     users,
+    users_recipes_browsing_history,
+    users_recipes_like,
 );

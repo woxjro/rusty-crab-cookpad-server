@@ -20,6 +20,8 @@ fn rocket() -> _ {
                 api::user::create_user,
                 api::user::read_user,
                 api::user::delete_user,
+                api::user::show_liked_recipes,
+                api::user::show_browsed_recipes
             ],
         )
         .mount(

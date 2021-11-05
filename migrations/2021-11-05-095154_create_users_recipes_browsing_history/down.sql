@@ -1,0 +1,1 @@
+DROP TABLE users_recipes_browsing_history
