@@ -1,10 +1,10 @@
 use crate::api::MyDatabase;
 use crate::models;
-use models::user::{NewUser, User};
+use models::user::{NewUser, User, UserWithAuthorities};
 use rocket::serde::json::{json, Json, Value};
 
 #[get("/<id>")]
-pub async fn read_user(conn: MyDatabase, id: usize) -> Json<User> {
+pub async fn read_user(conn: MyDatabase, id: usize) -> Json<UserWithAuthorities> {
     let user = conn.run(move |c| User::from(c, id as i32)).await;
     Json(user)
 }
@@ -27,7 +27,7 @@ pub async fn create_user(conn: MyDatabase, user: Json<NewUser>) -> Json<User> {
 }
 
 #[get("/")]
-pub async fn show_users(conn: MyDatabase) -> Json<Vec<User>> {
+pub async fn show_users(conn: MyDatabase) -> Json<Vec<UserWithAuthorities>> {
     let res = conn.run(|c| User::read(c)).await;
     Json(res)
 }
