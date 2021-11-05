@@ -4,8 +4,8 @@ use diesel::prelude::*;
 use diesel::PgConnection;
 use rocket::serde::{Deserialize, Serialize};
 
-#[serde(crate = "rocket::serde")]
 #[derive(Serialize, Deserialize, Debug, Queryable)]
+#[serde(crate = "rocket::serde")]
 pub struct Ingredient {
     pub id: i32,
     pub recipe_id: i32,
@@ -13,8 +13,8 @@ pub struct Ingredient {
     pub amount: String,
 }
 
-#[serde(crate = "rocket::serde")]
 #[derive(Deserialize, Insertable, FromForm, Debug)]
+#[serde(crate = "rocket::serde")]
 #[table_name = "ingredients"]
 pub struct NewIngredient {
     pub recipe_id: i32,

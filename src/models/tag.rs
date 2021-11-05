@@ -6,16 +6,16 @@ use diesel::prelude::*;
 use diesel::PgConnection;
 use rocket::serde::{Deserialize, Serialize};
 
-#[serde(crate = "rocket::serde")]
 #[derive(Associations, Identifiable, Serialize, Deserialize, Debug, Queryable)]
+#[serde(crate = "rocket::serde")]
 pub struct Tag {
     pub id: i32,
     pub name: String,
     pub hash: String,
 }
 
-#[serde(crate = "rocket::serde")]
 #[derive(Deserialize, Insertable, FromForm, Debug)]
+#[serde(crate = "rocket::serde")]
 #[table_name = "tags"]
 pub struct NewTag {
     pub name: String,
@@ -40,8 +40,9 @@ impl Tag {
         tags
     }
 }
-#[serde(crate = "rocket::serde")]
+
 #[derive(Associations, Identifiable, Queryable, Debug, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
 #[belongs_to(Tag, foreign_key = "tag_id")]
 #[belongs_to(Recipe, foreign_key = "recipe_id")]
 #[table_name = "recipes_tags_tagging"]

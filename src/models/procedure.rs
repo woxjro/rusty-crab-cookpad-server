@@ -4,8 +4,8 @@ use diesel::prelude::*;
 use diesel::PgConnection;
 use rocket::serde::{Deserialize, Serialize};
 
-#[serde(crate = "rocket::serde")]
 #[derive(Serialize, Deserialize, Debug, Queryable)]
+#[serde(crate = "rocket::serde")]
 pub struct Procedure {
     pub id: i32,
     pub recipe_id: i32,
@@ -14,8 +14,8 @@ pub struct Procedure {
     pub image_path: Option<String>,
 }
 
-#[serde(crate = "rocket::serde")]
 #[derive(Deserialize, Insertable, FromForm, Debug)]
+#[serde(crate = "rocket::serde")]
 #[table_name = "procedures"]
 pub struct NewProcedure {
     pub recipe_id: i32,

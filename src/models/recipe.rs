@@ -8,8 +8,8 @@ use diesel;
 use diesel::prelude::*;
 use diesel::PgConnection;
 use rocket::serde::{Deserialize, Serialize};
-#[serde(crate = "rocket::serde")]
 #[derive(Identifiable, PartialEq, Serialize, Deserialize, Debug, Queryable)]
+#[serde(crate = "rocket::serde")]
 pub struct Recipe {
     pub id: i32,
     pub user_id: i32,
@@ -19,8 +19,8 @@ pub struct Recipe {
     pub updated_at: chrono::NaiveDateTime,
     pub discription: Option<String>,
 }
-#[serde(crate = "rocket::serde")]
 #[derive(Serialize, Deserialize, Debug, Queryable)]
+#[serde(crate = "rocket::serde")]
 pub struct RecipeWithItems {
     pub id: i32,
     pub user_id: i32,
@@ -35,8 +35,8 @@ pub struct RecipeWithItems {
     pub categories: Vec<Category>,
 }
 
-#[serde(crate = "rocket::serde")]
 #[derive(Deserialize, Insertable, FromForm, Debug)]
+#[serde(crate = "rocket::serde")]
 #[table_name = "recipes"]
 pub struct NewRecipe {
     pub id: i32,
@@ -145,5 +145,13 @@ impl Recipe {
             .first::<Recipe>(conn)
             .unwrap();
         recipe
+    }
+
+    pub fn search(conn: &PgConnection, words: Vec<String>) -> Vec<Recipe> {
+        let mut query = recipes::table.into_boxed();
+        for word in words {
+            query = query.filter(recipes::title.like(word));
+        }
+        query.load::<Recipe>(conn).unwrap()
     }
 }

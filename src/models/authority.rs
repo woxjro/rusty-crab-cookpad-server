@@ -6,8 +6,8 @@ use diesel::prelude::*;
 use diesel::PgConnection;
 use rocket::serde::{Deserialize, Serialize};
 
-#[serde(crate = "rocket::serde")]
 #[derive(Associations, Identifiable, Serialize, Deserialize, Debug, Queryable)]
+#[serde(crate = "rocket::serde")]
 #[table_name = "authorities"]
 pub struct Authority {
     pub id: i32,
@@ -33,8 +33,8 @@ impl Authority {
         authorities
     }
 }
-#[serde(crate = "rocket::serde")]
 #[derive(Associations, Identifiable, Queryable, Debug, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
 #[belongs_to(UserType, foreign_key = "user_type_id")]
 #[belongs_to(Authority, foreign_key = "authority_id")]
 #[table_name = "user_types_authorities_ownership"]

@@ -4,8 +4,9 @@ use diesel;
 use diesel::prelude::*;
 use diesel::PgConnection;
 use rocket::serde::{Deserialize, Serialize};
-#[serde(crate = "rocket::serde")]
+
 #[derive(Identifiable, PartialEq, Serialize, Deserialize, Debug, Queryable)]
+#[serde(crate = "rocket::serde")]
 #[table_name = "user_types"]
 pub struct UserType {
     pub id: i32,
@@ -13,8 +14,8 @@ pub struct UserType {
     pub hash: String,
 }
 
-#[serde(crate = "rocket::serde")]
 #[derive(Serialize, Deserialize, Debug, Queryable)]
+#[serde(crate = "rocket::serde")]
 pub struct UserTypeWithAuthorities {
     pub id: i32,
     pub name: String,
