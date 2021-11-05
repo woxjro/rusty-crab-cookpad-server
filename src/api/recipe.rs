@@ -36,6 +36,13 @@ pub async fn show_recipes(conn: MyDatabase) -> Json<Vec<RecipeWithItems>> {
     Json(recipes)
 }
 
+#[get("/search?<words>")]
+pub async fn search(conn: MyDatabase, words: String) -> Json<Vec<Recipe>> {
+    let words = words.split(" ").map(|word| word.to_string()).collect();
+    let recipes = conn.run(|c| Recipe::search(c, words)).await;
+    Json(recipes)
+}
+
 #[get("/query?<user_id>&<category_id>&<tag_id>")]
 pub async fn show_recipes_with_query(
     conn: MyDatabase,

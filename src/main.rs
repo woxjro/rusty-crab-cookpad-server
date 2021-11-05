@@ -29,7 +29,8 @@ fn rocket() -> _ {
             routes![
                 api::recipe::show_recipes,
                 api::recipe::read_recipe,
-                api::recipe::show_recipes_with_query
+                api::recipe::show_recipes_with_query,
+                api::recipe::search
             ],
         )
 }

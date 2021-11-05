@@ -146,7 +146,7 @@ impl Recipe {
     pub fn search(conn: &PgConnection, words: Vec<String>) -> Vec<Recipe> {
         let mut query = recipes::table.into_boxed();
         for word in words {
-            query = query.filter(recipes::title.like(word));
+            query = query.or_filter(recipes::title.like(format!("%{}%", word).to_string()));
         }
         query.load::<Recipe>(conn).unwrap()
     }
