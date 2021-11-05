@@ -146,6 +146,40 @@ impl User {
             .collect::<Vec<Recipe>>();
         recipes
     }
+
+    pub fn like_recipe(conn: &PgConnection, user_id: i32, recipe_id: i32) -> bool {
+        let like = users_recipes_like::table
+            .filter(users_recipes_like::user_id.eq(user_id))
+            .filter(users_recipes_like::recipe_id.eq(recipe_id))
+            .first::<UsersRecipesLike>(conn);
+
+        match like {
+            Ok(_) => true,
+            Err(_) => {
+                let like = NewUsersRecipesLike {
+                    user_id: user_id,
+                    recipe_id: recipe_id,
+                };
+                diesel::insert_into(users_recipes_like::table)
+                    .values(&like)
+                    .execute(conn)
+                    .is_ok()
+            }
+        }
+    }
+
+    pub fn unlike_recipe(conn: &PgConnection, user_id: i32, recipe_id: i32) -> bool {
+        let like = users_recipes_like::table
+            .filter(users_recipes_like::user_id.eq(user_id))
+            .filter(users_recipes_like::recipe_id.eq(recipe_id))
+            .first::<UsersRecipesLike>(conn);
+        match like {
+            Ok(like) => diesel::delete(users_recipes_like::table.find(like.id))
+                .execute(conn)
+                .is_ok(),
+            _ => true,
+        }
+    }
 }
 
 #[derive(Associations, Identifiable, Queryable, Debug, Serialize, Deserialize)]
@@ -169,4 +203,20 @@ pub struct UsersRecipesBrowsingHistory {
     pub user_id: i32,
     pub recipe_id: i32,
     pub created_at: chrono::NaiveDateTime,
+}
+
+#[derive(Deserialize, Insertable, FromForm, Debug)]
+#[serde(crate = "rocket::serde")]
+#[table_name = "users_recipes_like"]
+pub struct NewUsersRecipesLike {
+    pub user_id: i32,
+    pub recipe_id: i32,
+}
+
+#[derive(Deserialize, Insertable, FromForm, Debug)]
+#[serde(crate = "rocket::serde")]
+#[table_name = "users_recipes_browsing_history"]
+pub struct NewUsersRecipesBrowsingHistory {
+    pub user_id: i32,
+    pub recipe_id: i32,
 }

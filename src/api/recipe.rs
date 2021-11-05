@@ -5,6 +5,7 @@ use models::ingredient::Ingredient;
 use models::procedure::Procedure;
 use models::recipe::{Recipe, RecipeWithItems};
 use models::tag::Tag;
+use models::user::User;
 use rocket::serde::json::Json;
 
 #[get("/<id>")]
@@ -34,6 +35,29 @@ pub async fn read_recipe(conn: MyDatabase, id: usize) -> Json<RecipeWithItems> {
 pub async fn show_recipes(conn: MyDatabase) -> Json<Vec<RecipeWithItems>> {
     let recipes = conn.run(|c| Recipe::read(c)).await;
     Json(recipes)
+}
+
+#[post("/<recipe_id>/is_liked_by/<user_id>")]
+pub async fn like_recipe(conn: MyDatabase, recipe_id: usize, user_id: usize) -> Json<String> {
+    let ok = conn
+        .run(move |c| User::like_recipe(c, user_id as i32, recipe_id as i32))
+        .await;
+
+    match ok {
+        true => Json("success".to_string()),
+        false => Json("failed".to_string()),
+    }
+}
+
+#[delete("/<recipe_id>/is_unliked_by/<user_id>")]
+pub async fn unlike_recipe(conn: MyDatabase, recipe_id: usize, user_id: usize) -> Json<String> {
+    let ok = conn
+        .run(move |c| User::unlike_recipe(c, user_id as i32, recipe_id as i32))
+        .await;
+    match ok {
+        true => Json("success".to_string()),
+        false => Json("failed".to_string()),
+    }
 }
 
 #[get("/search?<words>")]

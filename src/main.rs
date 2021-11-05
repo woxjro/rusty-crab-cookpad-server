@@ -30,7 +30,9 @@ fn rocket() -> _ {
                 api::recipe::show_recipes,
                 api::recipe::read_recipe,
                 api::recipe::show_recipes_with_query,
-                api::recipe::search
+                api::recipe::search,
+                api::recipe::like_recipe,
+                api::recipe::unlike_recipe,
             ],
         )
 }
