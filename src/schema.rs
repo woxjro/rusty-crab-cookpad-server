@@ -115,6 +115,7 @@ table! {
         id -> Int4,
         user_id -> Int4,
         recipe_id -> Int4,
+        created_at -> Timestamp,
     }
 }
 

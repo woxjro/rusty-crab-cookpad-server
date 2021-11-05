@@ -132,6 +132,7 @@ impl User {
             .first::<User>(conn)
             .unwrap();
         let middle = UsersRecipesBrowsingHistory::belonging_to(&user)
+            .order(users_recipes_browsing_history::created_at.desc())
             .load::<UsersRecipesBrowsingHistory>(conn)
             .unwrap();
         let recipes = middle
@@ -167,4 +168,5 @@ pub struct UsersRecipesBrowsingHistory {
     pub id: i32,
     pub user_id: i32,
     pub recipe_id: i32,
+    pub created_at: chrono::NaiveDateTime,
 }

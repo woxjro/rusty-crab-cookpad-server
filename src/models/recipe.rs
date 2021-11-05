@@ -85,19 +85,15 @@ impl Recipe {
         category_id: Option<i32>,
     ) -> Vec<RecipeWithItems> {
         let recipes = match user_id {
-            Some(id) => {
-                (recipes::table
-                    .order(recipes::id)
-                    .filter(recipes::user_id.eq(id))
-                    .load::<Recipe>(conn)
-                    .unwrap())
-            }
-            _ => {
-                (recipes::table
-                    .order(recipes::id)
-                    .load::<Recipe>(conn)
-                    .unwrap())
-            }
+            Some(id) => recipes::table
+                .order(recipes::id)
+                .filter(recipes::user_id.eq(id))
+                .load::<Recipe>(conn)
+                .unwrap(),
+            _ => recipes::table
+                .order(recipes::id)
+                .load::<Recipe>(conn)
+                .unwrap(),
         };
         let mut res = vec![];
         for recipe in recipes {
