@@ -33,16 +33,18 @@ pub async fn show_users(conn: MyDatabase) -> Json<Vec<UserWithAuthorities>> {
     Json(res)
 }
 
-#[get("/<id>/liked_recipes")]
-pub async fn show_liked_recipes(conn: MyDatabase, id: usize) -> Json<Vec<Recipe>> {
-    let res = conn.run(move |c| User::liked_recipes(c, id as i32)).await;
+#[get("/liked_recipes/<user_id>")]
+pub async fn show_liked_recipes(conn: MyDatabase, user_id: usize) -> Json<Vec<Recipe>> {
+    let res = conn
+        .run(move |c| User::liked_recipes(c, user_id as i32))
+        .await;
     Json(res)
 }
 
-#[get("/<id>/browsed_recipes")]
-pub async fn show_browsed_recipes(conn: MyDatabase, id: usize) -> Json<Vec<Recipe>> {
+#[get("/browsed_recipes/<user_id>")]
+pub async fn show_browsed_recipes(conn: MyDatabase, user_id: usize) -> Json<Vec<Recipe>> {
     let res = conn
-        .run(move |c| User::recipes_browsing_history(c, id as i32))
+        .run(move |c| User::recipes_browsing_history(c, user_id as i32))
         .await;
     Json(res)
 }

@@ -84,17 +84,12 @@ impl Recipe {
         tag_id: Option<i32>,
         category_id: Option<i32>,
     ) -> Vec<RecipeWithItems> {
-        let recipes = match user_id {
-            Some(id) => recipes::table
-                .order(recipes::id)
-                .filter(recipes::user_id.eq(id))
-                .load::<Recipe>(conn)
-                .unwrap(),
-            _ => recipes::table
-                .order(recipes::id)
-                .load::<Recipe>(conn)
-                .unwrap(),
-        };
+        let mut query = recipes::table.into_boxed();
+        if let Some(id) = user_id {
+            query = query.filter(recipes::user_id.eq(id));
+        }
+        let recipes = query.order(recipes::id).load::<Recipe>(conn).unwrap();
+
         let mut res = vec![];
         for recipe in recipes {
             let id = recipe.id;
