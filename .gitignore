@@ -2,3 +2,4 @@
 /target/
 /Cargo.lock
 /data/minio
+.DS_Store
