@@ -21,7 +21,7 @@ fn rocket() -> _ {
                 api::user::read_user,
                 api::user::delete_user,
                 api::user::show_liked_recipes,
-                api::user::show_browsed_recipes
+                api::user::show_browsed_recipes,
             ],
         )
         .mount(

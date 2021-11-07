@@ -83,6 +83,17 @@ impl User {
         res
     }
 
+    pub fn browse_recipe(conn: &PgConnection, user_id: i32, recipe_id: i32) -> bool {
+        let browsing_history = NewUsersRecipesBrowsingHistory {
+            user_id: user_id,
+            recipe_id: recipe_id,
+        };
+        diesel::insert_into(users_recipes_browsing_history::table)
+            .values(&browsing_history)
+            .execute(conn)
+            .is_ok()
+    }
+
     pub fn delete(id: i32, conn: &PgConnection) -> bool {
         diesel::delete(users::table.find(id)).execute(conn).is_ok()
     }

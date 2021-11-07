@@ -8,13 +8,24 @@ use models::tag::Tag;
 use models::user::User;
 use rocket::serde::json::Json;
 
-#[get("/<id>")]
-pub async fn read_recipe(conn: MyDatabase, id: usize) -> Json<RecipeWithItems> {
-    let recipe = conn.run(move |c| Recipe::from(c, id as i32)).await;
-    let ingredients = conn.run(move |c| Ingredient::from(c, id as i32)).await;
-    let procedures = conn.run(move |c| Procedure::from(c, id as i32)).await;
-    let tags = conn.run(move |c| Tag::from(c, id as i32)).await;
-    let categories = conn.run(move |c| Category::from(c, id as i32)).await;
+#[get("/<recipe_id>/by/<user_id>")]
+pub async fn read_recipe(
+    conn: MyDatabase,
+    recipe_id: usize,
+    user_id: usize,
+) -> Json<RecipeWithItems> {
+    let recipe = conn.run(move |c| Recipe::from(c, recipe_id as i32)).await;
+    let ingredients = conn
+        .run(move |c| Ingredient::from(c, recipe_id as i32))
+        .await;
+    let procedures = conn
+        .run(move |c| Procedure::from(c, recipe_id as i32))
+        .await;
+    let tags = conn.run(move |c| Tag::from(c, recipe_id as i32)).await;
+    let categories = conn.run(move |c| Category::from(c, recipe_id as i32)).await;
+
+    conn.run(move |c| User::browse_recipe(c, user_id as i32, recipe_id as i32))
+        .await;
 
     Json(RecipeWithItems {
         id: recipe.id,
