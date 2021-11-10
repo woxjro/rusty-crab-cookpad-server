@@ -60,7 +60,7 @@ pub async fn like_recipe(conn: MyDatabase, recipe_id: usize, user_id: usize) -> 
     }
 }
 
-#[delete("/<recipe_id>/is_unliked_by/<user_id>")]
+#[post("/<recipe_id>/is_unliked_by/<user_id>")]
 pub async fn unlike_recipe(conn: MyDatabase, recipe_id: usize, user_id: usize) -> Json<String> {
     let ok = conn
         .run(move |c| User::unlike_recipe(c, user_id as i32, recipe_id as i32))

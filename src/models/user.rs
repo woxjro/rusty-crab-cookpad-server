@@ -191,6 +191,17 @@ impl User {
             _ => true,
         }
     }
+
+    pub fn is_recipe_liked(conn: &PgConnection, user_id: i32, recipe_id: i32) -> bool {
+        let like = users_recipes_like::table
+            .filter(users_recipes_like::user_id.eq(user_id))
+            .filter(users_recipes_like::recipe_id.eq(recipe_id))
+            .first::<UsersRecipesLike>(conn);
+        match like {
+            Ok(_like) => true,
+            _ => false,
+        }
+    }
 }
 
 #[derive(Associations, Identifiable, Queryable, Debug, Serialize, Deserialize)]

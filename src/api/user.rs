@@ -33,6 +33,14 @@ pub async fn show_users(conn: MyDatabase) -> Json<Vec<UserWithAuthorities>> {
     Json(res)
 }
 
+#[get("/whether_like_recipe/<user_id>/<recipe_id>")]
+pub async fn whether_like_recipe(conn: MyDatabase, user_id: usize, recipe_id: usize) -> Json<bool> {
+    let res = conn
+        .run(move |c| User::is_recipe_liked(c, user_id as i32, recipe_id as i32))
+        .await;
+    Json(res)
+}
+
 #[get("/liked_recipes/<user_id>")]
 pub async fn show_liked_recipes(conn: MyDatabase, user_id: usize) -> Json<Vec<Recipe>> {
     let res = conn
