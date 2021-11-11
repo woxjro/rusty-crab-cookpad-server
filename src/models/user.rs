@@ -127,6 +127,12 @@ impl User {
             .unwrap();
         let recipes = middle
             .iter()
+            .filter(|e| {
+                recipes::table
+                    .filter(recipes::id.eq(e.recipe_id))
+                    .first::<Recipe>(conn)
+                    .is_ok()
+            })
             .map(|e| {
                 recipes::table
                     .filter(recipes::id.eq(e.recipe_id))
@@ -148,6 +154,12 @@ impl User {
             .unwrap();
         let recipes = middle
             .iter()
+            .filter(|e| {
+                recipes::table
+                    .filter(recipes::id.eq(e.recipe_id))
+                    .first::<Recipe>(conn)
+                    .is_ok()
+            })
             .map(|e| {
                 recipes::table
                     .filter(recipes::id.eq(e.recipe_id))

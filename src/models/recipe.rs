@@ -1,16 +1,20 @@
 use crate::models::category::Category;
-use crate::models::ingredient::Ingredient;
-use crate::models::procedure::Procedure;
-use crate::models::tag::Tag;
+use crate::models::category::NewRecipeCategoryCategorization;
+use crate::models::ingredient::{Ingredient, NewApiIngredient, NewIngredient};
+use crate::models::procedure::{NewApiProcedure, NewProcedure, Procedure};
+use crate::models::tag::{NewRecipeTagTagging, Tag};
 use crate::models::user::UsersRecipesLike;
 use crate::schema::recipes;
+use crate::schema::recipes_categories_categorization;
+use crate::schema::recipes_tags_tagging;
 use crate::schema::users_recipes_like;
 use chrono;
 use diesel;
 use diesel::prelude::*;
 use diesel::PgConnection;
 use rocket::serde::{Deserialize, Serialize};
-#[derive(Identifiable, PartialEq, Serialize, Deserialize, Debug, Queryable)]
+
+#[derive(Clone, Identifiable, PartialEq, Serialize, Deserialize, Debug, Queryable)]
 #[serde(crate = "rocket::serde")]
 pub struct Recipe {
     pub id: i32,
@@ -54,10 +58,10 @@ pub struct NewRecipeWithItems {
     pub title: String,
     pub thumbnail_path: Option<String>,
     pub discription: String,
-    pub ingredients: Vec<Ingredient>,
-    pub procedures: Vec<Procedure>,
-    pub tags: Vec<Tag>,
-    pub categories: Vec<Category>,
+    pub ingredients: Vec<NewApiIngredient>,
+    pub procedures: Vec<NewApiProcedure>,
+    pub tags: Vec<i32>,
+    pub categories: Vec<i32>,
 }
 
 impl Recipe {
@@ -179,5 +183,31 @@ impl Recipe {
                 .or_filter(recipes::discription.like(format!("%{}%", word).to_string()));
         }
         query.load::<Recipe>(conn).unwrap()
+    }
+
+    pub fn add_tags(conn: &PgConnection, recipe_id: i32, tag_ids: &Vec<i32>) -> () {
+        for &tag_id in tag_ids {
+            let recipe_tag = NewRecipeTagTagging {
+                recipe_id: recipe_id,
+                tag_id: tag_id,
+            };
+            diesel::insert_into(recipes_tags_tagging::table)
+                .values(&recipe_tag)
+                .execute(conn)
+                .unwrap();
+        }
+    }
+
+    pub fn add_categories(conn: &PgConnection, recipe_id: i32, category_ids: &Vec<i32>) -> () {
+        for &category_id in category_ids {
+            let recipe_category = NewRecipeCategoryCategorization {
+                recipe_id: recipe_id,
+                category_id: category_id,
+            };
+            diesel::insert_into(recipes_categories_categorization::table)
+                .values(&recipe_category)
+                .execute(conn)
+                .unwrap();
+        }
     }
 }

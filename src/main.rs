@@ -54,6 +54,7 @@ fn rocket() -> _ {
             routes![
                 api::recipe::show_recipes,
                 api::recipe::read_recipe,
+                api::recipe::read_recipe_by_login_user,
                 api::recipe::show_recipes_with_query,
                 api::recipe::search,
                 api::recipe::like_recipe,

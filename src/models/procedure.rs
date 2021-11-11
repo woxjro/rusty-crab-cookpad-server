@@ -14,11 +14,20 @@ pub struct Procedure {
     pub image_path: Option<String>,
 }
 
-#[derive(Deserialize, Insertable, FromForm, Debug)]
+#[derive(Serialize, Deserialize, Insertable, FromForm, Debug)]
 #[serde(crate = "rocket::serde")]
 #[table_name = "procedures"]
 pub struct NewProcedure {
     pub recipe_id: i32,
+    pub number: i32,
+    pub discription: String,
+    pub image_path: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Insertable, FromForm, Debug)]
+#[serde(crate = "rocket::serde")]
+#[table_name = "procedures"]
+pub struct NewApiProcedure {
     pub number: i32,
     pub discription: String,
     pub image_path: Option<String>,
@@ -31,5 +40,14 @@ impl Procedure {
             .order_by(procedures::number)
             .load::<Procedure>(conn)
             .unwrap()
+    }
+
+    pub fn create(conn: &PgConnection, procedures: &Vec<NewProcedure>) -> () {
+        for procedure in procedures {
+            diesel::insert_into(procedures::table)
+                .values(procedure)
+                .execute(conn)
+                .expect("Error creating new procedure");
+        }
     }
 }

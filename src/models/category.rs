@@ -30,6 +30,12 @@ impl Category {
             .unwrap();
         let categories = middle
             .iter()
+            .filter(|e| {
+                categories::table
+                    .filter(categories::id.eq(e.category_id))
+                    .first::<Category>(conn)
+                    .is_ok()
+            })
             .map(|e| {
                 categories::table
                     .filter(categories::id.eq(e.category_id))
@@ -47,6 +53,14 @@ impl Category {
 #[table_name = "recipes_categories_categorization"]
 pub struct RecipeCategoryCategorization {
     pub id: i32,
+    pub recipe_id: i32,
+    pub category_id: i32,
+}
+
+#[derive(Deserialize, Insertable, Debug)]
+#[serde(crate = "rocket::serde")]
+#[table_name = "recipes_categories_categorization"]
+pub struct NewRecipeCategoryCategorization {
     pub recipe_id: i32,
     pub category_id: i32,
 }

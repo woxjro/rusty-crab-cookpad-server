@@ -30,6 +30,12 @@ impl Tag {
             .unwrap();
         let tags = middle
             .iter()
+            .filter(|e| {
+                tags::table
+                    .filter(tags::id.eq(e.tag_id))
+                    .first::<Tag>(conn)
+                    .is_ok()
+            })
             .map(|e| {
                 tags::table
                     .filter(tags::id.eq(e.tag_id))
@@ -48,6 +54,14 @@ impl Tag {
 #[table_name = "recipes_tags_tagging"]
 pub struct RecipesTagsTagging {
     pub id: i32,
+    pub recipe_id: i32,
+    pub tag_id: i32,
+}
+
+#[derive(Deserialize, Insertable, FromForm, Debug)]
+#[serde(crate = "rocket::serde")]
+#[table_name = "recipes_tags_tagging"]
+pub struct NewRecipeTagTagging {
     pub recipe_id: i32,
     pub tag_id: i32,
 }

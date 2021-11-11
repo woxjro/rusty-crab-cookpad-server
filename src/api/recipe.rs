@@ -1,18 +1,19 @@
 use crate::api::MyDatabase;
 use crate::models;
+use crate::models::ingredient::NewIngredient;
 use models::category::Category;
 use models::ingredient::Ingredient;
-use models::procedure::Procedure;
+use models::procedure::{NewProcedure, Procedure};
 use models::recipe::{NewRecipe, NewRecipeWithItems, Recipe, RecipeWithItems};
 use models::tag::Tag;
 use models::user::User;
 use rocket::serde::json::Json;
 
 #[get("/<recipe_id>/by/<user_id>")]
-pub async fn read_recipe(
+pub async fn read_recipe_by_login_user(
     conn: MyDatabase,
     recipe_id: usize,
-    user_id: usize,
+    user_id: Option<usize>,
 ) -> Json<RecipeWithItems> {
     let recipe = conn.run(move |c| Recipe::from(c, recipe_id as i32)).await;
     let ingredients = conn
@@ -24,8 +25,40 @@ pub async fn read_recipe(
     let tags = conn.run(move |c| Tag::from(c, recipe_id as i32)).await;
     let categories = conn.run(move |c| Category::from(c, recipe_id as i32)).await;
 
-    conn.run(move |c| User::browse_recipe(c, user_id as i32, recipe_id as i32))
+    match user_id {
+        Some(user_id) => {
+            conn.run(move |c| User::browse_recipe(c, user_id as i32, recipe_id as i32))
+                .await;
+        }
+        _ => (),
+    }
+
+    Json(RecipeWithItems {
+        id: recipe.id,
+        user_id: recipe.user_id,
+        title: recipe.title,
+        thumbnail_path: recipe.thumbnail_path,
+        created_at: recipe.created_at,
+        updated_at: recipe.updated_at,
+        discription: recipe.discription,
+        ingredients: ingredients,
+        procedures: procedures,
+        tags: tags,
+        categories: categories,
+    })
+}
+
+#[get("/<recipe_id>")]
+pub async fn read_recipe(conn: MyDatabase, recipe_id: usize) -> Json<RecipeWithItems> {
+    let recipe = conn.run(move |c| Recipe::from(c, recipe_id as i32)).await;
+    let ingredients = conn
+        .run(move |c| Ingredient::from(c, recipe_id as i32))
         .await;
+    let procedures = conn
+        .run(move |c| Procedure::from(c, recipe_id as i32))
+        .await;
+    let tags = conn.run(move |c| Tag::from(c, recipe_id as i32)).await;
+    let categories = conn.run(move |c| Category::from(c, recipe_id as i32)).await;
 
     Json(RecipeWithItems {
         id: recipe.id,
@@ -52,13 +85,39 @@ pub async fn create(conn: MyDatabase, recipe: Json<NewRecipeWithItems>) -> Json<
         discription: new_recipe_with_items.discription,
     };
 
-    let ingredients = new_recipe_with_items.ingredients;
-    let procedures = new_recipe_with_items.procedures;
     let tags = new_recipe_with_items.tags;
     let categories = new_recipe_with_items.categories;
 
-    let res = conn.run(move |c| Recipe::create(recipe, c)).await;
-    Json(res)
+    let recipe = conn.run(move |c| Recipe::create(recipe, c)).await;
+    let rid = recipe.clone().id;
+    let ingredients = new_recipe_with_items
+        .ingredients
+        .iter()
+        .map(|ingredient| NewIngredient {
+            recipe_id: rid,
+            name: ingredient.name.clone(),
+            amount: ingredient.amount.clone(),
+        })
+        .collect::<Vec<NewIngredient>>();
+
+    let procedures = new_recipe_with_items
+        .procedures
+        .iter()
+        .map(|procedure| NewProcedure {
+            recipe_id: rid,
+            number: procedure.number,
+            discription: procedure.discription.clone(),
+            image_path: procedure.image_path.clone(),
+        })
+        .collect::<Vec<NewProcedure>>();
+
+    conn.run(move |c| Recipe::add_tags(c, rid, &tags)).await;
+    conn.run(move |c| Recipe::add_categories(c, rid, &categories))
+        .await;
+
+    conn.run(move |c| Ingredient::create(c, &ingredients)).await;
+    conn.run(move |c| Procedure::create(c, &procedures)).await;
+    Json(recipe)
 }
 
 #[get("/")]
