@@ -45,6 +45,11 @@ impl Tag {
             .collect::<Vec<Tag>>();
         tags
     }
+
+    pub fn read(conn: &PgConnection) -> Vec<Tag> {
+        let tags = tags::table.order(tags::id).load::<Tag>(conn).unwrap();
+        tags
+    }
 }
 
 #[derive(Associations, Identifiable, Queryable, Debug, Serialize, Deserialize)]

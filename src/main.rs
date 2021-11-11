@@ -62,4 +62,6 @@ fn rocket() -> _ {
                 api::recipe::create
             ],
         )
+        .mount("/api/tag", routes![api::tag::read])
+        .mount("/api/category", routes![api::category::read])
 }

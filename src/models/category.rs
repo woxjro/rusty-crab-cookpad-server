@@ -23,6 +23,14 @@ pub struct NewCategory {
 }
 
 impl Category {
+    pub fn read(conn: &PgConnection) -> Vec<Category> {
+        let categories = categories::table
+            .order(categories::id)
+            .load::<Category>(conn)
+            .unwrap();
+        categories
+    }
+
     pub fn from(conn: &PgConnection, recipe_id: i32) -> Vec<Category> {
         let recipe = Recipe::from(conn, recipe_id);
         let middle = RecipeCategoryCategorization::belonging_to(&recipe)
