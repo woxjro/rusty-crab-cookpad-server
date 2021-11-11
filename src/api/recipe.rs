@@ -3,7 +3,7 @@ use crate::models;
 use models::category::Category;
 use models::ingredient::Ingredient;
 use models::procedure::Procedure;
-use models::recipe::{Recipe, RecipeWithItems};
+use models::recipe::{NewRecipe, NewRecipeWithItems, Recipe, RecipeWithItems};
 use models::tag::Tag;
 use models::user::User;
 use rocket::serde::json::Json;
@@ -40,6 +40,25 @@ pub async fn read_recipe(
         tags: tags,
         categories: categories,
     })
+}
+
+#[post("/", format = "json", data = "<recipe>")]
+pub async fn create(conn: MyDatabase, recipe: Json<NewRecipeWithItems>) -> Json<Recipe> {
+    let new_recipe_with_items = recipe.into_inner();
+    let recipe = NewRecipe {
+        user_id: new_recipe_with_items.user_id,
+        title: new_recipe_with_items.title,
+        thumbnail_path: new_recipe_with_items.thumbnail_path,
+        discription: new_recipe_with_items.discription,
+    };
+
+    let ingredients = new_recipe_with_items.ingredients;
+    let procedures = new_recipe_with_items.procedures;
+    let tags = new_recipe_with_items.tags;
+    let categories = new_recipe_with_items.categories;
+
+    let res = conn.run(move |c| Recipe::create(recipe, c)).await;
+    Json(res)
 }
 
 #[get("/")]

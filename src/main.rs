@@ -58,6 +58,7 @@ fn rocket() -> _ {
                 api::recipe::search,
                 api::recipe::like_recipe,
                 api::recipe::unlike_recipe,
+                api::recipe::create
             ],
         )
 }

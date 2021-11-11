@@ -2,7 +2,9 @@ use crate::models::category::Category;
 use crate::models::ingredient::Ingredient;
 use crate::models::procedure::Procedure;
 use crate::models::tag::Tag;
+use crate::models::user::UsersRecipesLike;
 use crate::schema::recipes;
+use crate::schema::users_recipes_like;
 use chrono;
 use diesel;
 use diesel::prelude::*;
@@ -39,14 +41,37 @@ pub struct RecipeWithItems {
 #[serde(crate = "rocket::serde")]
 #[table_name = "recipes"]
 pub struct NewRecipe {
-    pub id: i32,
     pub user_id: i32,
     pub title: String,
     pub thumbnail_path: Option<String>,
     pub discription: String,
 }
 
+#[derive(Serialize, Deserialize, Debug, Queryable)]
+#[serde(crate = "rocket::serde")]
+pub struct NewRecipeWithItems {
+    pub user_id: i32,
+    pub title: String,
+    pub thumbnail_path: Option<String>,
+    pub discription: String,
+    pub ingredients: Vec<Ingredient>,
+    pub procedures: Vec<Procedure>,
+    pub tags: Vec<Tag>,
+    pub categories: Vec<Category>,
+}
+
 impl Recipe {
+    pub fn create(recipe: NewRecipe, conn: &PgConnection) -> Recipe {
+        diesel::insert_into(recipes::table)
+            .values(&recipe)
+            .execute(conn)
+            .expect("Error creating new user");
+        recipes::table
+            .order(recipes::id.desc())
+            .first(conn)
+            .unwrap()
+    }
+
     pub fn read(conn: &PgConnection) -> Vec<RecipeWithItems> {
         let recipes = recipes::table
             .order(recipes::id)
@@ -130,6 +155,14 @@ impl Recipe {
         res
     }
 
+    pub fn count_likes(conn: &PgConnection, recipe_id: i32) -> usize {
+        let likes = users_recipes_like::table
+            .filter(users_recipes_like::recipe_id.eq(recipe_id))
+            .load::<UsersRecipesLike>(conn)
+            .unwrap_or(vec![]);
+        likes.len()
+    }
+
     pub fn from(conn: &PgConnection, id: i32) -> Recipe {
         let recipe = recipes::table
             .filter(recipes::id.eq(id))
@@ -141,7 +174,9 @@ impl Recipe {
     pub fn search(conn: &PgConnection, words: Vec<String>) -> Vec<Recipe> {
         let mut query = recipes::table.into_boxed();
         for word in words {
-            query = query.or_filter(recipes::title.like(format!("%{}%", word).to_string()));
+            query = query
+                .or_filter(recipes::title.like(format!("%{}%", word).to_string()))
+                .or_filter(recipes::discription.like(format!("%{}%", word).to_string()));
         }
         query.load::<Recipe>(conn).unwrap()
     }
