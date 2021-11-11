@@ -48,6 +48,33 @@ pub async fn read_recipe_by_login_user(
     })
 }
 
+#[post("/delete/<recipe_id>/by/<user_id>")]
+pub async fn delete(conn: MyDatabase, recipe_id: usize, user_id: usize) -> Json<bool> {
+    let user = conn.run(move |c| User::from(c, user_id as i32)).await;
+    let is_own_recipe = conn
+        .run(move |c| Recipe::from(c, recipe_id as i32))
+        .await
+        .user_id
+        == user_id as i32;
+    let can_delete_own_recipe = user
+        .user_type_with_authorities
+        .authorities
+        .iter()
+        .any(move |authority| authority.hash == "delete_own_recipe".to_string());
+
+    let can_delete_all_recipes = user
+        .user_type_with_authorities
+        .authorities
+        .iter()
+        .any(move |authority| authority.hash == "delete_all_recipes".to_string());
+
+    let res = match (is_own_recipe && can_delete_own_recipe) || can_delete_all_recipes {
+        true => conn.run(move |c| Recipe::delete(c, recipe_id as i32)).await,
+        false => false,
+    };
+    Json(res)
+}
+
 #[get("/<recipe_id>")]
 pub async fn read_recipe(conn: MyDatabase, recipe_id: usize) -> Json<RecipeWithItems> {
     let recipe = conn.run(move |c| Recipe::from(c, recipe_id as i32)).await;

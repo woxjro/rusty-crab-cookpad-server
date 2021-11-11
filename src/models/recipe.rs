@@ -1,12 +1,15 @@
 use crate::models::category::Category;
 use crate::models::category::NewRecipeCategoryCategorization;
-use crate::models::ingredient::{Ingredient, NewApiIngredient, NewIngredient};
-use crate::models::procedure::{NewApiProcedure, NewProcedure, Procedure};
+use crate::models::ingredient::{Ingredient, NewApiIngredient};
+use crate::models::procedure::{NewApiProcedure, Procedure};
 use crate::models::tag::{NewRecipeTagTagging, Tag};
 use crate::models::user::UsersRecipesLike;
+use crate::schema::ingredients;
+use crate::schema::procedures;
 use crate::schema::recipes;
 use crate::schema::recipes_categories_categorization;
 use crate::schema::recipes_tags_tagging;
+use crate::schema::users_recipes_browsing_history;
 use crate::schema::users_recipes_like;
 use chrono;
 use diesel;
@@ -105,6 +108,47 @@ impl Recipe {
             res.push(r);
         }
         res
+    }
+
+    pub fn delete(conn: &PgConnection, recipe_id: i32) -> bool {
+        //ingredient
+        let _ = diesel::delete(ingredients::table.filter(ingredients::recipe_id.eq(recipe_id)))
+            .execute(conn)
+            .is_ok();
+        //procedures
+        let _ = diesel::delete(procedures::table.filter(procedures::recipe_id.eq(recipe_id)))
+            .execute(conn)
+            .is_ok();
+        //category
+        let _ = diesel::delete(
+            recipes_categories_categorization::table
+                .filter(recipes_categories_categorization::recipe_id.eq(recipe_id)),
+        )
+        .execute(conn)
+        .is_ok();
+        //tag
+        let _ = diesel::delete(
+            recipes_tags_tagging::table.filter(recipes_tags_tagging::recipe_id.eq(recipe_id)),
+        )
+        .execute(conn)
+        .is_ok();
+        //browsing history
+        let _ = diesel::delete(
+            users_recipes_browsing_history::table
+                .filter(users_recipes_browsing_history::recipe_id.eq(recipe_id)),
+        )
+        .execute(conn)
+        .is_ok();
+        //like
+        let _ = diesel::delete(
+            users_recipes_like::table.filter(users_recipes_like::recipe_id.eq(recipe_id)),
+        )
+        .execute(conn)
+        .is_ok();
+
+        diesel::delete(recipes::table.find(recipe_id))
+            .execute(conn)
+            .is_ok()
     }
 
     pub fn read_with_query(
