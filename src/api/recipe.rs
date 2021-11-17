@@ -4,9 +4,10 @@ use crate::models::ingredient::NewIngredient;
 use models::category::Category;
 use models::ingredient::Ingredient;
 use models::procedure::{NewProcedure, Procedure};
-use models::recipe::{NewRecipe, NewRecipeWithItems, Recipe, RecipeWithItems};
+use models::recipe::{NewRecipe, NewRecipeWithItems, Recipe, RecipeWithItems, UpdateRecipe};
 use models::tag::Tag;
 use models::user::User;
+use models::user::UsersRecipesLike;
 use rocket::serde::json::Json;
 
 #[get("/<recipe_id>/by/<user_id>")]
@@ -75,6 +76,16 @@ pub async fn delete(conn: MyDatabase, recipe_id: usize, user_id: usize) -> Json<
     Json(res)
 }
 
+/*
+#[get("/likes_count/<recipe_id>")]
+pub async fn likes_count(conn: MyDatabase, recipe_id: usize) -> Json<i32> {
+    let recipe = conn.run(move |c| Recipe::from(c, recipe_id as i32)).await;
+    let middle = UsersRecipesLike::belonging_to(&recipe)
+        .load::<UsersRecipesLike>(conn)
+        .unwrap();
+    Json(1)
+}
+ */
 #[get("/<recipe_id>")]
 pub async fn read_recipe(conn: MyDatabase, recipe_id: usize) -> Json<RecipeWithItems> {
     let recipe = conn.run(move |c| Recipe::from(c, recipe_id as i32)).await;
@@ -100,6 +111,13 @@ pub async fn read_recipe(conn: MyDatabase, recipe_id: usize) -> Json<RecipeWithI
         tags: tags,
         categories: categories,
     })
+}
+
+#[post("/update", format = "json", data = "<recipe>")]
+pub async fn update(conn: MyDatabase, recipe: Json<UpdateRecipe>) -> Json<Recipe> {
+    let update_recipe = recipe.into_inner();
+    let recipe = conn.run(move |c| Recipe::update(c, update_recipe)).await;
+    Json(recipe)
 }
 
 #[post("/", format = "json", data = "<recipe>")]

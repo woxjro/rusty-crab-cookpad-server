@@ -60,7 +60,8 @@ fn rocket() -> _ {
                 api::recipe::like_recipe,
                 api::recipe::unlike_recipe,
                 api::recipe::create,
-                api::recipe::delete
+                api::recipe::delete,
+                api::recipe::update
             ],
         )
         .mount("/api/tag", routes![api::tag::read])

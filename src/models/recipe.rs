@@ -54,6 +54,17 @@ pub struct NewRecipe {
     pub discription: String,
 }
 
+#[derive(Deserialize, Insertable, FromForm, Debug)]
+#[serde(crate = "rocket::serde")]
+#[table_name = "recipes"]
+pub struct UpdateRecipe {
+    pub id: i32,
+    pub user_id: i32,
+    pub title: String,
+    pub thumbnail_path: Option<String>,
+    pub discription: String,
+}
+
 #[derive(Serialize, Deserialize, Debug, Queryable)]
 #[serde(crate = "rocket::serde")]
 pub struct NewRecipeWithItems {
@@ -76,6 +87,16 @@ impl Recipe {
         recipes::table
             .order(recipes::id.desc())
             .first(conn)
+            .unwrap()
+    }
+
+    pub fn update(conn: &PgConnection, recipe: UpdateRecipe) -> Recipe {
+        diesel::update(recipes::table.filter(recipes::id.eq(recipe.id)))
+            .set((
+                recipes::title.eq(recipe.title),
+                recipes::discription.eq(recipe.discription),
+            ))
+            .get_result(conn)
             .unwrap()
     }
 
