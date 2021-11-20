@@ -1,6 +1,6 @@
 use crate::models::category::Category;
 use crate::models::category::NewRecipeCategoryCategorization;
-use crate::models::ingredient::{Ingredient, NewApiIngredient};
+use crate::models::ingredient::{Ingredient, NewApiIngredient, NewIngredient};
 use crate::models::procedure::{NewApiProcedure, Procedure};
 use crate::models::tag::{NewRecipeTagTagging, Tag};
 use crate::models::user::UsersRecipesLike;
@@ -54,15 +54,18 @@ pub struct NewRecipe {
     pub discription: String,
 }
 
-#[derive(Deserialize, Insertable, FromForm, Debug)]
+#[derive(Clone, Serialize, Deserialize, FromForm, Debug, Queryable)]
 #[serde(crate = "rocket::serde")]
-#[table_name = "recipes"]
 pub struct UpdateRecipe {
     pub id: i32,
     pub user_id: i32,
     pub title: String,
     pub thumbnail_path: Option<String>,
     pub discription: String,
+    pub ingredients: Vec<NewApiIngredient>,
+    pub procedures: Vec<NewApiProcedure>,
+    pub tags: Vec<i32>,
+    pub categories: Vec<i32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Queryable)]
@@ -91,13 +94,24 @@ impl Recipe {
     }
 
     pub fn update(conn: &PgConnection, recipe: UpdateRecipe) -> Recipe {
-        diesel::update(recipes::table.filter(recipes::id.eq(recipe.id)))
+        let res = diesel::update(recipes::table.filter(recipes::id.eq(recipe.id)))
             .set((
                 recipes::title.eq(recipe.title),
                 recipes::discription.eq(recipe.discription),
             ))
             .get_result(conn)
-            .unwrap()
+            .unwrap();
+
+        //ingredient
+        let _ = diesel::delete(ingredients::table.filter(ingredients::recipe_id.eq(recipe.id)))
+            .execute(conn)
+            .is_ok();
+        //procedures
+        let _ = diesel::delete(procedures::table.filter(procedures::recipe_id.eq(recipe.id)))
+            .execute(conn)
+            .is_ok();
+
+        res
     }
 
     pub fn read(conn: &PgConnection) -> Vec<RecipeWithItems> {

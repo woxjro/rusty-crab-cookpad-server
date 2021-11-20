@@ -116,8 +116,34 @@ pub async fn read_recipe(conn: MyDatabase, recipe_id: usize) -> Json<RecipeWithI
 #[post("/update", format = "json", data = "<recipe>")]
 pub async fn update(conn: MyDatabase, recipe: Json<UpdateRecipe>) -> Json<Recipe> {
     let update_recipe = recipe.into_inner();
-    let recipe = conn.run(move |c| Recipe::update(c, update_recipe)).await;
-    Json(recipe)
+    let ur = update_recipe.clone();
+    let res = conn.run(move |c| Recipe::update(c, ur)).await;
+
+    let rid = res.clone().id;
+    let procedures = update_recipe
+        .procedures
+        .iter()
+        .map(|procedure| NewProcedure {
+            recipe_id: rid,
+            number: procedure.number,
+            discription: procedure.discription.clone(),
+            image_path: procedure.image_path.clone(),
+        })
+        .collect::<Vec<NewProcedure>>();
+
+    let ingredients = update_recipe
+        .ingredients
+        .iter()
+        .map(|ingredient| NewIngredient {
+            recipe_id: rid,
+            name: ingredient.name.clone(),
+            amount: ingredient.amount.clone(),
+        })
+        .collect::<Vec<NewIngredient>>();
+
+    conn.run(move |c| Ingredient::create(c, &ingredients)).await;
+    conn.run(move |c| Procedure::create(c, &procedures)).await;
+    Json(res)
 }
 
 #[post("/", format = "json", data = "<recipe>")]

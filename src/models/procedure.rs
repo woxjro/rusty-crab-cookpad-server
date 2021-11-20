@@ -24,7 +24,7 @@ pub struct NewProcedure {
     pub image_path: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Insertable, FromForm, Debug)]
+#[derive(Clone, Serialize, Deserialize, Insertable, FromForm, Debug)]
 #[serde(crate = "rocket::serde")]
 #[table_name = "procedures"]
 pub struct NewApiProcedure {

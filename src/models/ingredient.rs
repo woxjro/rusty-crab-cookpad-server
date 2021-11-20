@@ -22,7 +22,7 @@ pub struct NewIngredient {
     pub amount: String,
 }
 
-#[derive(Serialize, Deserialize, Insertable, FromForm, Debug)]
+#[derive(Clone, Serialize, Deserialize, Insertable, FromForm, Debug)]
 #[serde(crate = "rocket::serde")]
 #[table_name = "ingredients"]
 pub struct NewApiIngredient {
