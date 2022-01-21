@@ -1,7 +1,7 @@
 [![CI](https://github.com/woxjro/rusty-crab-cookpad-server/actions/workflows/main.yml/badge.svg)](https://github.com/woxjro/rusty-crab-cookpad-server/actions/workflows/main.yml)
 # Rusty Crab Cookpad Server 🦀
 
-
+(frontend: https://github.com/woxjro/rusty-crab-cookpad-front)
 
 ### How to build
 - use `Nightly Rust`
