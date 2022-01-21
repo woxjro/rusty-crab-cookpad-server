@@ -21,10 +21,14 @@
 
 https://diesel.rs/guides/getting-started
 
-
-
-
 `psql -d rusty_crab_cookpad -U postgres`   
 `\i ./data/init/user_types.sql`
+
+
+
+https://user-images.githubusercontent.com/63214188/150461377-0a01ef17-0b07-48ad-904a-8cd5cc4b506d.mov
+
+
+
 
 
